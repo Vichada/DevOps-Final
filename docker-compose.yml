@@ -38,7 +38,7 @@ services:
       PMA_PORT: 3306
       PMA_ARBITRARY: 0
     ports:
-      - "0.0.0.0:8081:80"  # Binds 8081 allowing access from any remote PC
+      - "0.0.0.0:8082:80" 
     depends_on:
       - mysqldb
     networks:
