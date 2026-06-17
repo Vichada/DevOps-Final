@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: a-sar-vichada-pod
+  labels:
+    app: web-mysql-app
+spec:
+  containers:
+    # 1. Web Server Container (JDK 21 + NGINX Proxy + PHP-CLI)
+    - name: web-server
+      image: eclipse-temurin:21-jdk
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          apt-get update && apt-get install -y nginx php-cli openssh-server
+          echo "server { listen 8080; location / { proxy_pass http://127.0.0.1:8080; } }" > /etc/nginx/sites-available/default
+          service nginx start
+          tail -f /dev/null
+      ports:
+        - containerPort: 8443
+          name: website
+        - containerPort: 2222
+          name: ssh
+
+    # 2. MySQL Database Container (Strict Name: A-Sar_Vichada-db)
+    - name: mysql-db
+      image: mysql:8.0
+      env:
+        - name: MYSQL_DATABASE
+          value: "A-Sar_Vichada-db"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "Hello@123"
+      ports:
+        - containerPort: 3306
+          name: mysql
