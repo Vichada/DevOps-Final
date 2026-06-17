@@ -29,6 +29,21 @@ services:
     networks:
       - devops_network
 
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin_container
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql_container
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 0
+    ports:
+      - "0.0.0.0:8081:80"  # Binds 8081 allowing access from any remote PC
+    depends_on:
+      - mysqldb
+    networks:
+      - devops_network
+
 volumes:
   mysql_data:
 
