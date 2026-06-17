@@ -1,0 +1,58 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "temurin"
+          cache: maven
+
+      - name: Build and Test with Maven
+        run: mvn clean package test -Dspring.profiles.active=test
+
+      - name: Send Email Notification on Failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "GitHub Actions Build Error: DevOps-Final"
+          to: ${{ github.actor }}@users.noreply.github.com
+          cc: srengty@gmail.com
+          from: GitHub Actions CI
+          body: |
+            The build or test phase failed for commit ${{ github.sha }} by ${{ github.actor }}.
+            Please view the details at: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      - name: Run Ansible Playbook Deployment
+        run: ansible-playbook playbook.yml
