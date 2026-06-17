@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mysqldb:
+    image: mysql:8.0.43
+    container_name: mysql_container
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: "A-Sar_Vichada-db"
+      MYSQL_ROOT_PASSWORD: "Hello@123"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - devops_network
+
+  webserver:
+    build: .
+    container_name: web_container
+    restart: unless-stopped
+    ports:
+      - "8443:8080"  # Expose 8443 mapped to Nginx proxy port 8080
+      - "2222:22"    # SSH entry port 2222 mapped to internal SSH
+    volumes:
+      - .:/app
+    depends_on:
+      - mysqldb
+    networks:
+      - devops_network
+
+volumes:
+  mysql_data:
+
+networks:
+  devops_network:
+    driver: bridge
