@@ -1,0 +1,37 @@
+---
+- name: Task 3 - Web Server Deployment, SQLite Testing, and MySQL Backup
+  hosts: localhost
+  connection: local
+  vars:
+    web_container: "A-Sar_Vichada-web"
+    db_container: "A-Sar_Vichada-db-container"
+    db_name: "A-Sar_Vichada-db"
+    backup_dest: "./backup.sql"
+
+  tasks:
+    # 1. Run git pull safely inside the container's app path
+    - name: Force git pull discarding local modifications
+      ansible.builtin.command:
+        cmd: docker exec {{ web_container }} sh -c "git reset --hard HEAD && git pull origin main"
+
+    # 2. Build using Maven
+    - name: Build the application using Maven
+      ansible.builtin.command:
+        cmd: docker exec {{ web_container }} mvn clean package
+
+    # 3. Run test against SQLite database
+    - name: Execute testing framework targeting SQLite test profile
+      ansible.builtin.command:
+        cmd: docker exec {{ web_container }} mvn test -Dspring.profiles.active=test
+      register: test_result
+
+    # 4. Backup the MySQL production database
+    - name: Backup the production MySQL database
+      ansible.builtin.command:
+        cmd: docker exec -i {{ db_container }} mysqldump -u root -pHello@123 {{ db_name }}
+      register: mysql_backup
+
+    - name: Save the database dump to backup.sql locally
+      ansible.builtin.copy:
+        content: "{{ mysql_backup.stdout }}"
+        dest: "{{ backup_dest }}"
