@@ -157,5 +157,20 @@ public class ProfileController {
         
         return new ResponseEntity<>(pdfContents, headers, HttpStatus.OK);
     }
+
+    // Download Single PDF containing ALL registered profiles
+    @GetMapping(value = "/export/batch", produces = MediaType.APPLICATION_PDF_VALUE)
+    @ResponseBody
+    public ResponseEntity<byte[]> downloadBatchPdf() {
+        List<Profile> allProfiles = profileService.getAllProfiles();
+        if (allProfiles.isEmpty()) return ResponseEntity.noContent().build();
+        
+        byte[] pdfContents = pdfExportService.generateBatchIdCardsPdf(allProfiles);
+        
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=Batch_All_ID_Cards.pdf");
+        
+        return new ResponseEntity<>(pdfContents, headers, HttpStatus.OK);
+    }
 }
 
