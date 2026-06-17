@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Live ID Card Preview</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .id-card {
+            width: 350px;
+            border: 2px solid #333;
+            border-radius: 15px;
+            padding: 20px;
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+        }
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #007bff;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column align-items-center justify-content-center vh-100 bg-light">
+    
+    <div class="id-card text-center mb-4">
+        <h5 class="text-uppercase fw-bold text-primary m-0" th:text="${profile.type}">CAMPUS PASS</h5>
+        <hr class="my-2">
+        
+        <img th:if="${profile.hasPhoto()}" th:src="@{'/uploads/' + ${profile.photoFileName}}" class="profile-img my-2">
+        <img th:unless="${profile.hasPhoto()}" src="https://via.placeholder.com/100" class="profile-img my-2">
+        
+        <h4 class="mt-2 mb-1" th:text="${profile.fullName}">John Doe</h4>
+        <p class="text-muted mb-2" th:text="${profile.department}">Information Technology</p>
+        
+        <div class="bg-dark text-white p-1 rounded font-monospace mb-3" th:text="${profile.registrationNumber}">
+            2026-DEPT-123
+        </div>
+
+        <div class="d-flex justify-content-around align-items-center mt-3">
+            <div>
+                <img th:src="${qrCode}" alt="QR Code" width="90">
+                <small class="d-block text-muted mt-1" style="font-size: 9px;">Verify Card</small>
+            </div>
+            <div>
+                <img th:src="${barcode}" alt="Barcode" width="140">
+                <small class="d-block text-muted mt-1" style="font-size: 9px;">Scan Check-In</small>
+            </div>
+        </div>
+    </div>
+
+    <a href="/" class="btn btn-secondary">← Back to Dashboard</a>
+
+</body>
+</html>
+
